@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待办 - 个人助手</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <a href="/" class="brand">个人助手</a>
+    <ul class="nav-links">
+        <li><a href="/accounting">记账</a></li>
+        <li><a href="/health">健康</a></li>
+        <li><a href="/todo" class="active">待办</a></li>
+    </ul>
+</nav>
+
+<div class="container">
+
+    <!-- Page Header -->
+    <div class="page-header flex-between">
+        <div>
+            <h1>待办事项</h1>
+            <p class="subtitle">管理您的任务列表</p>
+        </div>
+        <div>
+            <span class="badge badge-blue" th:text="'PENDING: ' + ${#lists.size(tasks.?[status == 'PENDING'])}">PENDING: 0</span>
+            <span class="badge badge-green ml-2" th:text="'DONE: ' + ${#lists.size(tasks.?[status == 'DONE'])}" style="margin-left: 8px;">DONE: 0</span>
+        </div>
+    </div>
+
+    <!-- Add Task Form -->
+    <div class="card">
+        <div class="card-header">添加新任务</div>
+        <div class="card-body">
+            <form action="/todo/add" method="post">
+                <div class="form-row">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="title">任务标题 *</label>
+                        <input type="text" id="title" name="title" maxlength="100" placeholder="请输入任务标题" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">优先级</label>
+                        <select id="priority" name="priority">
+                            <option value="HIGH">高</option>
+                            <option value="MEDIUM" selected>中</option>
+                            <option value="LOW">低</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="deadline">截止日期</label>
+                        <input type="date" id="deadline" name="deadline">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">添加任务</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task List -->
+    <div class="card">
+        <div class="card-header">
+            <span>任务列表</span>
+            <span class="text-muted" style="font-weight: 400; font-size: 13px;"
+                  th:text="'共 ' + ${#lists.size(tasks)} + ' 条'">共 0 条</span>
+        </div>
+        <div class="card-body no-padding">
+            <div th:if="${#lists.isEmpty(tasks)}" class="empty-state">
+                <div class="empty-icon">[ ]</div>
+                <p>暂无任务，请添加一个任务</p>
+            </div>
+            <div class="table-wrapper" th:if="${not #lists.isEmpty(tasks)}">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>状态</th>
+                            <th>标题</th>
+                            <th>优先级</th>
+                            <th>截止日期</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="task : ${tasks}"
+                            th:classappend="${task.status == 'DONE'} ? 'text-muted'">
+                            <td>
+                                <span th:if="${task.status == 'PENDING'}" class="badge badge-yellow">待完成</span>
+                                <span th:if="${task.status == 'DONE'}" class="badge badge-green">已完成</span>
+                            </td>
+                            <td>
+                                <span th:if="${task.status == 'DONE'}" style="text-decoration: line-through;"
+                                      th:text="${task.title}">任务</span>
+                                <span th:if="${task.status != 'DONE'}" th:text="${task.title}">任务</span>
+                            </td>
+                            <td>
+                                <span th:if="${task.priority == 'HIGH'}" class="badge badge-red">高</span>
+                                <span th:if="${task.priority == 'MEDIUM'}" class="badge badge-yellow">中</span>
+                                <span th:if="${task.priority == 'LOW'}" class="badge badge-gray">低</span>
+                            </td>
+                            <td>
+                                <span th:text="${task.deadline}"></span>
+                                <span th:if="${task.deadline == null}" class="text-muted">-</span>
+                            </td>
+                            <td>
+                                <span th:if="${task.status == 'PENDING'}">
+                                    <a th:href="@{/todo/done/{id}(id=${task.id})}"
+                                       class="btn btn-success btn-sm">完成</a>
+                                </span>
+                                <a th:href="@{/todo/delete/{id}(id=${task.id})}"
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('确认删除该任务？')">删除</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer class="footer">
+    <p>个人助手系统 &mdash; 软件测试实验项目</p>
+</footer>
+
+</body>
+</html>

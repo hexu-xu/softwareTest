@@ -157,6 +157,8 @@ src/test/java/com/assistant/
 |------|-----|------|
 | GET | `/health` | 健康首页，展示历史数据 |
 | POST | `/health/add` | 表单提交，记录健康数据 |
+| GET | `/health/delete/{id}` | 删除指定记录 |
+| POST | `/health/edit` | 表单提交，修改健康数据 |
 
 **API 接口（返回 JSON）：**
 
@@ -167,8 +169,10 @@ src/test/java/com/assistant/
 | GET | `/api/health/history?type=&start=&end=` | 按类型和日期范围查询 | 多条件组合 |
 | GET | `/api/health/alerts` | 获取当前所有健康预警 | 预警逻辑正确性 |
 | GET | `/api/health/latest` | 获取各类型最新一条数据 | 查询逻辑 |
+| DELETE | `/api/health/{id}` | 删除一条健康数据 | 删除存在/不存在 |
+| PUT | `/api/health/{id}` | 修改一条健康数据 | 字段更新、id不存在 |
 
-**API 数量：5 个**
+**API 数量：7 个**
 
 ### 模块3：待办 Controller — `TodoController`
 
@@ -180,6 +184,7 @@ src/test/java/com/assistant/
 | POST | `/todo/add` | 表单提交，添加任务 |
 | GET | `/todo/done/{id}` | 标记完成 |
 | GET | `/todo/delete/{id}` | 删除任务 |
+| POST | `/todo/edit` | 表单提交，修改任务 |
 
 **API 接口（返回 JSON）：**
 
@@ -195,7 +200,7 @@ src/test/java/com/assistant/
 
 **API 数量：7 个**
 
-### API 端点总计：6 + 5 + 7 = **18 个**，满足讨论要求（3人 × 5 = 15）。
+### API 端点总计：6 + 7 + 7 = **20 个**。
 
 ---
 
@@ -230,8 +235,10 @@ src/test/java/com/assistant/
 | `checkAlerts()` | 检查并生成健康预警 | 各阈值判断分支（高血压、低血压、过轻、过重、睡眠不足） | **分支全覆盖** |
 | `getAlertMessages()` | 获取预警文案 | 多条/零条预警 | 循环覆盖 |
 | `getLatest()` | 获取各类型最新数据 | 无数据、有数据 | 语句覆盖 |
+| `deleteHealthData(Long id)` | 删除一条健康数据 | id存在、id不存在 | 分支覆盖 |
+| `updateHealthData(Long id, HealthData d)` | 修改一条健康数据 | id存在更新、id不存在抛异常、数据合法性 | 分支覆盖 |
 
-**可测方法：9 个**
+**可测方法：11 个**
 
 ### TodoService
 
@@ -248,7 +255,7 @@ src/test/java/com/assistant/
 
 **可测方法：8 个**
 
-### Service 层可测方法总计：9 + 9 + 8 = **26 个**，充分满足讨论要求（≥15）。
+### Service 层可测方法总计：9 + 11 + 8 = **28 个**。
 
 ---
 
@@ -275,10 +282,10 @@ src/test/java/com/assistant/
 
 | 课程要求 | 测什么 | 工具 | 目标对象 |
 |----------|--------|------|---------|
-| **实验1** 白盒测试 | Service 层 26 个方法 | JUnit 5 | 本项目 Service |
+| **实验1** 白盒测试 | Service 层 28 个方法 | JUnit 5 | 本项目 Service |
 | **实验2** 黑盒测试 | 3 个 Thymeleaf 页面的增删改查操作 | 手工测试 | 本项目 HTML 页面 |
 | **讨论1** OO测试 | 本项目 Service 方法 + 外部开源项目 | JUnit 5 | 本项目 + GitHub 项目 |
-| **讨论2** Web API测试 | 18 个 REST API 端点 | Postman / JMeter | 本项目 Controller |
+| **讨论2** Web API测试 | 20 个 REST API 端点 | Postman / JMeter | 本项目 Controller |
 
 
 

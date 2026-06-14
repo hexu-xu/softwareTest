@@ -1,0 +1,28 @@
+CREATE TABLE IF NOT EXISTS tb_record (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    amount DECIMAL(10,2) NOT NULL,
+    type VARCHAR(20) NOT NULL,
+    category VARCHAR(50),
+    description VARCHAR(200),
+    record_date DATE,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS tb_health_data (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    data_type VARCHAR(20) NOT NULL,
+    value1 DOUBLE,
+    value2 DOUBLE,
+    record_date DATE,
+    note VARCHAR(200),
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS tb_task (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    priority VARCHAR(10) DEFAULT 'MEDIUM',
+    status VARCHAR(20) DEFAULT 'PENDING',
+    deadline DATE,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

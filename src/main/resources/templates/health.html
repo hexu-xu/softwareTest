@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康 - 个人助手</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <a href="/" class="brand">个人助手</a>
+    <ul class="nav-links">
+        <li><a href="/accounting">记账</a></li>
+        <li><a href="/health" class="active">健康</a></li>
+        <li><a href="/todo">待办</a></li>
+    </ul>
+</nav>
+
+<div class="container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>健康备忘录</h1>
+        <p class="subtitle">追踪体重、血压和睡眠数据</p>
+    </div>
+
+    <!-- Health Alerts -->
+    <div th:if="${not #lists.isEmpty(alerts)}">
+        <div class="alert alert-warning" th:each="alert : ${alerts}" th:text="${alert}">
+            预警信息
+        </div>
+    </div>
+
+    <!-- Add Health Data Form -->
+    <div class="card">
+        <div class="card-header">记录健康数据</div>
+        <div class="card-body">
+            <form action="/health/add" method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dataType">数据类型 *</label>
+                        <select id="dataType" name="dataType" required onchange="toggleValueFields()">
+                            <option value="">请选择</option>
+                            <option value="WEIGHT">体重 (kg)</option>
+                            <option value="BLOOD_PRESSURE">血压 (mmHg)</option>
+                            <option value="SLEEP">睡眠 (小时)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="value1Group">
+                        <label for="value1">数值 *</label>
+                        <input type="number" id="value1" name="value1" step="0.1" placeholder="请输入数值" required>
+                    </div>
+                    <div class="form-group" id="value2Group" style="display: none;">
+                        <label for="value2">舒张压 (低压) *</label>
+                        <input type="number" id="value2" name="value2" step="0.1" placeholder="请输入舒张压">
+                    </div>
+                    <div class="form-group">
+                        <label for="recordDate">日期</label>
+                        <input type="date" id="recordDate" name="recordDate">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="note">备注</label>
+                    <input type="text" id="note" name="note" maxlength="200" placeholder="备注说明（可选）">
+                </div>
+                <button type="submit" class="btn btn-primary">记录数据</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Latest Health Data -->
+    <div class="card">
+        <div class="card-header">最新健康数据</div>
+        <div class="card-body no-padding">
+            <div th:if="${#lists.isEmpty(healthDataList)}" class="empty-state">
+                <div class="empty-icon">[ ]</div>
+                <p>暂无健康数据，请记录一条数据</p>
+            </div>
+            <div class="table-wrapper" th:if="${not #lists.isEmpty(healthDataList)}">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>类型</th>
+                            <th>数值</th>
+                            <th>日期</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="data : ${healthDataList}">
+                            <td>
+                                <span th:if="${data.dataType == 'WEIGHT'}" class="badge badge-blue">体重</span>
+                                <span th:if="${data.dataType == 'BLOOD_PRESSURE'}" class="badge badge-red">血压</span>
+                                <span th:if="${data.dataType == 'SLEEP'}" class="badge badge-green">睡眠</span>
+                            </td>
+                            <td>
+                                <span th:if="${data.dataType == 'WEIGHT'}" th:text="${data.value1} + ' kg'">70 kg</span>
+                                <span th:if="${data.dataType == 'BLOOD_PRESSURE'}"
+                                      th:text="${data.value1} + ' / ' + ${data.value2} + ' mmHg'">120 / 80 mmHg</span>
+                                <span th:if="${data.dataType == 'SLEEP'}" th:text="${data.value1} + ' 小时'">7.5 小时</span>
+                            </td>
+                            <td th:text="${data.recordDate}">2025-06-10</td>
+                            <td>
+                                <span th:text="${data.note}" class="text-muted"></span>
+                                <span th:if="${data.note == null or data.note.isEmpty()}" class="text-muted">-</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/health/delete/{id}(id=${data.id})}"
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('确认删除该记录？')">删除</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer class="footer">
+    <p>个人助手系统 &mdash; 软件测试实验项目</p>
+</footer>
+
+<script>
+    // Toggle value2 field visibility based on selected data type
+    function toggleValueFields() {
+        var type = document.getElementById('dataType').value;
+        var v2Group = document.getElementById('value2Group');
+        var v2Input = document.getElementById('value2');
+        var v1Label = document.querySelector('#value1Group label');
+
+        if (type === 'BLOOD_PRESSURE') {
+            v2Group.style.display = 'block';
+            v2Input.required = true;
+            v1Label.textContent = '收缩压 (高压) *';
+        } else {
+            v2Group.style.display = 'none';
+            v2Input.required = false;
+            v2Input.value = '';
+            if (type === 'WEIGHT') {
+                v1Label.textContent = '体重 (kg) *';
+            } else if (type === 'SLEEP') {
+                v1Label.textContent = '睡眠时长 (小时) *';
+            } else {
+                v1Label.textContent = '数值 *';
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
